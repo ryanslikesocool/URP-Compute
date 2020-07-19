@@ -13,5 +13,10 @@ MonoBehaviour:
   m_Name: Sphere Compute
   m_EditorClassIdentifier: 
   shader: {fileID: 7200000, guid: 5ee2af154912243bbb9367ee98d1e533, type: 3}
-  bounces: 0
-  skybox: {fileID: 2800000, guid: 469492aaa1e534aedb8bba7786dcccee, type: 3}
+  lightRotation: {x: 55, y: 30, z: 0}
+  lightIntensity: 1
+  bounces: 3
+  skybox: {fileID: 2800000, guid: 515d0016c57354f5584b58b4e4b6c798, type: 3}
+  sphereRadius: {x: 0.25, y: 1}
+  spheresMax: 100
+  spherePlacementRadius: 8

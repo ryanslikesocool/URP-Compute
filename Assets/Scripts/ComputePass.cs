@@ -18,6 +18,8 @@ public class ComputePass : ScriptableRenderPass
         this.profilerTag = profilerTag;
         computeAsset = settings.computeAsset;
         renderPassEvent = settings.passEvent;
+
+        computeAsset.Setup();
     }
 
     public void Setup(RenderTargetIdentifier source, RenderTargetHandle destination)
@@ -46,10 +48,15 @@ public class ComputePass : ScriptableRenderPass
     {
         if (computeAsset == null || computeAsset.shader == null) { return; }
 
+        Camera camera = Camera.current;
+        if (camera == null) { camera = GameObject.FindObjectOfType<Camera>(); }
+
         CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
 
+        Blit(cmd, source, targetIdentifier);
+
         cmd.SetComputeTextureParam(computeAsset.shader, 0, "Result", targetIdentifier);
-        computeAsset.Render(cmd);
+        computeAsset.Render(cmd, camera);
 
         Blit(cmd, targetIdentifier, source);
 

@@ -30,4 +30,9 @@ public class ComputeFeature : ScriptableRendererFeature
         computePass.Setup(src, dst);
         renderer.EnqueuePass(computePass);
     }
+
+    private void OnDisable()
+    {
+        settings.computeAsset.Cleanup();
+    }
 }
