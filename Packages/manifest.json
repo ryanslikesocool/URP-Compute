@@ -1,11 +1,8 @@
 {
   "dependencies": {
     "com.unity.2d.sprite": "1.0.0",
-    "com.unity.device-simulator": "2.2.2-preview",
     "com.unity.ide.vscode": "1.2.1",
-    "com.unity.inputsystem": "1.0.0",
-    "com.unity.render-pipelines.universal": "8.1.0",
-    "com.unity.textmeshpro": "3.0.0-preview.13",
+    "com.unity.render-pipelines.universal": "8.2.0",
     "com.unity.ugui": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",

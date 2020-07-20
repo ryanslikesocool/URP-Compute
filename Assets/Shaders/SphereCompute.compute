@@ -2,6 +2,19 @@
 
 RWTexture2D<float4> Result;
 
+float4x4 _CameraToWorld;
+float4x4 _CameraInverseProjection;
+
+float4 _DirectionalLight;
+
+float2 _PixelOffset;
+
+uint _SphereCount;
+uint _Bounces;
+
+Texture2D<float4> _SkyboxTexture;
+SamplerState sampler_SkyboxTexture;
+
 static const float PI = 3.14159265f;
 
 struct Sphere
@@ -12,23 +25,18 @@ struct Sphere
     float3 specular;
 };
 
+StructuredBuffer<Sphere> _Spheres;
+
+
+//-------------------------------------
+//- RAY
+
 struct Ray
 {
     float3 origin;
     float3 direction;
     float3 energy;
 };
-
-float4x4 _CameraToWorld;
-float4x4 _CameraInverseProjection;
-float4 _DirectionalLight;
-int _Bounces;
-uint _SphereCount;
-
-Texture2D<float4> _SkyboxTexture;
-SamplerState sampler_SkyboxTexture;
-
-StructuredBuffer<Sphere> _Spheres;
 
 Ray CreateRay(float3 origin, float3 direction)
 {
@@ -38,6 +46,24 @@ Ray CreateRay(float3 origin, float3 direction)
     ray.energy = float3(1.0f, 1.0f, 1.0f);
     return ray;
 }
+
+Ray CreateCameraRay(float2 uv)
+{
+    // Transform the camera origin to world space
+    float3 origin = mul(_CameraToWorld, float4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
+    
+    // Invert the perspective projection of the view-space position
+    float3 direction = mul(_CameraInverseProjection, float4(uv, 0.0f, 1.0f)).xyz;
+    // Transform the direction from camera to world space and normalize
+    direction = mul(_CameraToWorld, float4(direction, 0.0f)).xyz;
+    direction = normalize(direction);
+
+    return CreateRay(origin, direction);
+}
+
+
+//-------------------------------------
+//- RAYHIT
 
 struct RayHit
 {
@@ -58,6 +84,10 @@ RayHit CreateRayHit()
     hit.specular = float3(0.0f, 0.0f, 0.0f);
     return hit;
 }
+
+
+//-------------------------------------
+//- INTERSECTION
 
 void IntersectGroundPlane(Ray ray, inout RayHit bestHit)
 {
@@ -94,6 +124,10 @@ void IntersectSphere(Ray ray, inout RayHit bestHit, uint sphereIndex)
     }
 }
 
+
+//-------------------------------------
+//- TRACE
+
 RayHit Trace(Ray ray)
 {
     RayHit bestHit = CreateRayHit();
@@ -102,25 +136,16 @@ RayHit Trace(Ray ray)
     IntersectGroundPlane(ray, bestHit);
 
     // Trace spheres
-    for (uint i = 0; i < _SphereCount; i++) 
+    for (uint i = 0; i < _SphereCount; i++)
     {
         IntersectSphere(ray, bestHit, i);
     }
     return bestHit;
 }
 
-Ray CreateCameraRay(float2 uv)
-{
-    // Transform the camera origin to world space
-    float3 origin = mul(_CameraToWorld, float4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
-    
-    // Invert the perspective projection of the view-space position
-    float3 direction = mul(_CameraInverseProjection, float4(uv, 0.0f, 1.0f)).xyz;
-    // Transform the direction from camera to world space and normalize
-    direction = mul(_CameraToWorld, float4(direction, 0.0f)).xyz;
-    direction = normalize(direction);
-    return CreateRay(origin, direction);
-}
+
+//-------------------------------------
+//- SHADE
 
 float3 Shade(inout Ray ray, RayHit hit)
 {
@@ -155,27 +180,32 @@ float3 Shade(inout Ray ray, RayHit hit)
     }
 }
 
+
+//-------------------------------------
+//- KERNEL
+
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     // Get the dimensions of the RenderTexture
     uint width, height;
     Result.GetDimensions(width, height);
+
     // Transform pixel to [-1,1] range
-    float2 uv = float2((id.xy + float2(0.5f, 0.5f)) / float2(width, height) * 2.0f - 1.0f);
+    float2 uv = float2((id.xy + _PixelOffset) / float2(width, height) * 2.0f - 1.0f);
+
     // Get a ray for the UVs
     Ray ray = CreateCameraRay(uv);
-        
-    // Trace and shade
+
+    // Trace and shade the ray
     float3 result = float3(0, 0, 0);
-    for (int i = 0; i < _Bounces; i++)
+    for (uint i = 0; i < _Bounces; i++)
     {
         RayHit hit = Trace(ray);
         result += ray.energy * Shade(ray, hit);
-        if (!any(ray.energy)) 
-        {
+
+        if (!any(ray.energy))
             break;
-        }
     }
 
     Result[id.xy] = float4(result, 1);
