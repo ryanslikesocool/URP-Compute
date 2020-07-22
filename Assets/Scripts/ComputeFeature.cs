@@ -19,20 +19,23 @@ public class ComputeFeature : ScriptableRendererFeature
 
     public override void Create()
     {
+        if (settings.computeAsset == null) { return; }
+
         settings.computeAsset.Setup();
-        computePass = new ComputePass(name, settings);
+        computePass = new ComputePass(name, settings, new Material(Shader.Find("Hidden/AddShader")));
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
+        if (settings.computeAsset == null) { return; }
+
         RenderTargetIdentifier src = renderer.cameraColorTarget;
-        RenderTargetHandle dst = RenderTargetHandle.CameraTarget;
-        computePass.Setup(src, dst);
+        computePass.Setup(src);
         renderer.EnqueuePass(computePass);
     }
 
     private void OnDisable()
     {
-        settings.computeAsset.Cleanup();
+        settings.computeAsset?.Cleanup();
     }
 }
