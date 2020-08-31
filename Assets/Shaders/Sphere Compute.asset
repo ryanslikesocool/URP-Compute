@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sphere Compute
   m_EditorClassIdentifier: 
   shader: {fileID: 7200000, guid: 5ee2af154912243bbb9367ee98d1e533, type: 3}
-  randomSeed: 0
+  randomSeed: 77777777
   lightRotation: {x: 55, y: 30, z: 0}
   lightIntensity: 1
   bounces: 8
