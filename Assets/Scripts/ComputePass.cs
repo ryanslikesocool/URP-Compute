@@ -17,12 +17,11 @@ public class ComputePass : ScriptableRenderPass
     private Material addMaterial;
     private int currentSample;
 
-    public ComputePass(string profilerTag, ComputeFeature.ComputeSettings settings, Material addMaterial)
+    public ComputePass(string profilerTag, ComputeFeature.ComputeSettings settings)
     {
         this.profilerTag = profilerTag;
         computeAsset = settings.computeAsset;
         renderPassEvent = settings.passEvent;
-        this.addMaterial = addMaterial;
 
         target?.Release();
         target = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
@@ -47,13 +46,17 @@ public class ComputePass : ScriptableRenderPass
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
     {
         if (computeAsset == null || computeAsset.shader == null) { return; }
+        if (addMaterial == null)
+        {
+            addMaterial = new Material(Shader.Find("Hidden/AddShader"));
+        }
 
         CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
         int kernelHandle = computeAsset.shader.FindKernel("CSMain");
 
         computeAsset.Render(cmd, kernelHandle);
 
-        cmd.SetComputeTextureParam(computeAsset.shader, 0, "Result", target);
+        cmd.SetComputeTextureParam(computeAsset.shader, kernelHandle, "Result", target);
         cmd.DispatchCompute(computeAsset.shader, kernelHandle, Mathf.CeilToInt(Screen.width / 8), Mathf.CeilToInt(Screen.height / 8), 1);
 
         addMaterial.SetFloat("_Sample", currentSample);
@@ -70,5 +73,6 @@ public class ComputePass : ScriptableRenderPass
     {
         target?.Release();
         converged?.Release();
+        Material.Destroy(addMaterial);
     }
 }

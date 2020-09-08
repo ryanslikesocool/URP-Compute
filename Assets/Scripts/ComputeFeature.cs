@@ -22,7 +22,7 @@ public class ComputeFeature : ScriptableRendererFeature
         if (settings.computeAsset == null) { return; }
 
         settings.computeAsset.Setup();
-        computePass = new ComputePass(name, settings, new Material(Shader.Find("Hidden/AddShader")));
+        computePass = new ComputePass(name, settings);
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)

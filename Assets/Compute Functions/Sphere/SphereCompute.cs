@@ -80,6 +80,8 @@ public class SphereCompute : ComputeAsset
 
         commandBuffer.SetComputeBufferParam(shader, kernelHandle, "_Spheres", sphereBuffer);
         commandBuffer.SetComputeIntParam(shader, "_SphereCount", spheres.Count);
+
+        //commandBuffer.SetComputeVectorParam(shader, "_PixelOffset", new Vector2(Random.value, Random.value));
     }
 
     public override void Cleanup()
