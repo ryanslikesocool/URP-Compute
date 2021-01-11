@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49bb4db22ab094d6fa65fe05d1163af9, type: 3}
   m_Name: Spheres
   m_EditorClassIdentifier: 
-  m_Active: 0
+  m_Active: 1
   settings:
     passEvent: 250
     computeAsset: {fileID: 11400000, guid: a07b15f9c2f154b5da54761ffc6f5f20, type: 2}
@@ -73,7 +73,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49bb4db22ab094d6fa65fe05d1163af9, type: 3}
   m_Name: Mandelbulb
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   settings:
     passEvent: 300
     computeAsset: {fileID: 11400000, guid: 1e993ecdc5ac1400d88ffd8c4eed1641, type: 2}

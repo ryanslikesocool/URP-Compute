@@ -24,12 +24,12 @@ public class ComputePass : ScriptableRenderPass
         renderPassEvent = settings.passEvent;
 
         target?.Release();
-        target = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
+        target = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.sRGB);
         target.enableRandomWrite = true;
         target.Create();
 
         converged?.Release();
-        converged = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
+        converged = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.sRGB);
         converged.enableRandomWrite = true;
         converged.Create();
 

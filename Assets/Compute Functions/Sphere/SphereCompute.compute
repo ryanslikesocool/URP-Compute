@@ -208,5 +208,5 @@ void CSMain (uint3 id : SV_DispatchThreadID)
             break;
     }
 
-    Result[id.xy] = float4(result, 1);
+    Result[id.xy] = float4(result.x, result.y, result.z, 1);
 }
