@@ -27,7 +27,6 @@ struct Sphere
 
 StructuredBuffer<Sphere> _Spheres;
 
-
 //-------------------------------------
 //- RAY
 
@@ -61,7 +60,6 @@ Ray CreateCameraRay(float2 uv)
     return CreateRay(origin, direction);
 }
 
-
 //-------------------------------------
 //- RAYHIT
 
@@ -84,7 +82,6 @@ RayHit CreateRayHit()
     hit.specular = float3(0.0f, 0.0f, 0.0f);
     return hit;
 }
-
 
 //-------------------------------------
 //- INTERSECTION
@@ -124,7 +121,6 @@ void IntersectSphere(Ray ray, inout RayHit bestHit, uint sphereIndex)
     }
 }
 
-
 //-------------------------------------
 //- TRACE
 
@@ -142,7 +138,6 @@ RayHit Trace(Ray ray)
     }
     return bestHit;
 }
-
 
 //-------------------------------------
 //- SHADE
@@ -180,11 +175,10 @@ float3 Shade(inout Ray ray, RayHit hit)
     }
 }
 
-
 //-------------------------------------
 //- KERNEL
 
-[numthreads(8,8,1)]
+[numthreads(8, 8, 1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     // Get the dimensions of the RenderTexture

@@ -16,7 +16,7 @@ MonoBehaviour:
   randomSeed: 77777777
   lightRotation: {x: 55, y: 30, z: 0}
   lightIntensity: 1
-  bounces: 8
+  bounces: 6
   skybox: {fileID: 2800000, guid: 515d0016c57354f5584b58b4e4b6c798, type: 3}
   sphereRadius: {x: 0.25, y: 1}
   spheresMax: 100

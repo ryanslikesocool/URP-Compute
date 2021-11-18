@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-[CreateAssetMenu(menuName = "Shader/Compute/Sphere Compute", fileName = "New Sphere Compute")]
-public class SphereCompute : ComputeAsset
-{
+[CreateAssetMenu(menuName = "Compute/Sphere Compute")]
+public class SphereCompute : ComputeAsset {
     public int randomSeed;
 
     [Space] public Vector3 lightRotation = new Vector3(30, 25, 0);
@@ -19,33 +18,30 @@ public class SphereCompute : ComputeAsset
     private ComputeBuffer sphereBuffer;
     private List<Sphere> spheres;
 
-    public struct Sphere
-    {
+    public struct Sphere {
         public Vector3 position;
         public float radius;
         public Vector3 albedo;
         public Vector3 specular;
     }
 
-    public override void Setup()
-    {
+    public override void Setup() {
         Random.InitState(randomSeed);
 
         spheres = new List<Sphere>();
 
-        for (int i = 0; i < spheresMax; i++)
-        {
+        for (int i = 0; i < spheresMax; i++) {
             Sphere sphere = new Sphere();
 
             sphere.radius = sphereRadius.x + Random.value * (sphereRadius.y - sphereRadius.x);
             Vector2 randomPos = Random.insideUnitCircle * spherePlacementRadius;
             sphere.position = new Vector3(randomPos.x, sphere.radius, randomPos.y);
 
-            foreach (Sphere other in spheres)
-            {
+            foreach (Sphere other in spheres) {
                 float minDist = sphere.radius + other.radius;
-                if (Vector3.SqrMagnitude(sphere.position - other.position) < minDist * minDist)
+                if (Vector3.SqrMagnitude(sphere.position - other.position) < minDist * minDist) {
                     goto SkipSphere;
+                }
             }
 
             Color color = Random.ColorHSV();
@@ -59,15 +55,13 @@ public class SphereCompute : ComputeAsset
         }
     }
 
-    public override void Render(CommandBuffer commandBuffer, int kernelHandle)
-    {
+    public override void Render(CommandBuffer commandBuffer, int kernelHandle) {
         Cleanup();
 
-        Camera camera = Camera.current;
-        if (camera == null) { camera = GameObject.FindObjectOfType<Camera>(); }
+        Camera camera = Camera.main;
 
         sphereBuffer = new ComputeBuffer(spheres.Count, 40);
-        commandBuffer.SetComputeBufferData(sphereBuffer, spheres);
+        commandBuffer.SetBufferData(sphereBuffer, spheres);
 
         commandBuffer.SetComputeMatrixParam(shader, "_CameraToWorld", camera.cameraToWorldMatrix);
         commandBuffer.SetComputeMatrixParam(shader, "_CameraInverseProjection", camera.projectionMatrix.inverse);
@@ -84,8 +78,7 @@ public class SphereCompute : ComputeAsset
         //commandBuffer.SetComputeVectorParam(shader, "_PixelOffset", new Vector2(Random.value, Random.value));
     }
 
-    public override void Cleanup()
-    {
+    public override void Cleanup() {
         sphereBuffer?.Dispose();
     }
 }

@@ -6,45 +6,59 @@
 	}
 	SubShader
 	{
-		Cull Off ZWrite Off ZTest Always
+		Cull Off
+        ZWrite Off
+        ZTest Always
 		Blend SrcAlpha OneMinusSrcAlpha
 
 		Pass
 		{
-			CGPROGRAM
+			HLSLPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
 			
-			#include "UnityCG.cginc"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-			struct appdata
-			{
-				float4 vertex : POSITION;
-				float2 uv : TEXCOORD0;
-			};
+            struct Attributes
+            {
+                float4 positionHCS : POSITION;
+                float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
 
-			struct v2f
-			{
-				float2 uv : TEXCOORD0;
-				float4 vertex : SV_POSITION;
-			};
+            struct Varyings
+            {
+                float4  positionCS : SV_POSITION;
+                float2  uv : TEXCOORD0;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
 
-			v2f vert (appdata v)
+			Varyings vert(Attributes input)
 			{
-				v2f o;
-				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.uv = v.uv;
-				return o;
+				Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+
+				output.positionCS = float4(input.positionHCS.xyz, 1.0);
+
+                #if UNITY_UV_STARTS_AT_TOP
+                output.positionCS.y *= -1;
+                #endif
+
+				output.uv = input.uv;
+				return output;
 			}
 			
-			sampler2D _MainTex;
+			TEXTURE2D_X(_MainTex);
+			SAMPLER(sampler_MainTex);
 			float _Sample;
 
-			float4 frag (v2f i) : SV_Target
+			float4 frag(Attributes input) : SV_Target
 			{
-				return float4(tex2D(_MainTex, i.uv).rgb, 1.0f / (_Sample + 1.0f));
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+				return float4(SAMPLE_TEXTURE2D_X(_MainTex, sampler_MainTex, input.uv).rgb, 1.0f / (_Sample + 1.0f));
 			}
-			ENDCG
+			ENDHLSL
 		}
 	}
 }
